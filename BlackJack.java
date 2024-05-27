@@ -9,13 +9,17 @@ public class BlackJack {
         String value;
         String type;
 
-        Card (String val, String type) {
+        Card (String value, String type) {
             this.value = value;
             this.type = type;
+        }
+        public String toString() {
+            return value + "-" + type;
         }
     }
 
     ArrayList<Card> deck;
+    Random rand = new Random();
 
     BlackJack() {
         startGame();
@@ -23,6 +27,7 @@ public class BlackJack {
 
     public void startGame() {
         buildDeck();
+        shuffleDeck();
     }
 
     public void buildDeck() {
@@ -37,6 +42,18 @@ public class BlackJack {
             }
         }
         System.out.println("Колода карт:");
+        System.out.println(deck);
+    }
+
+    public void shuffleDeck() {
+        for (int i = 0; i < deck.size(); i++) {
+            int j = rand.nextInt(deck.size());
+            Card currCard = deck.get(i);
+            Card randomCard = deck.get(j);
+            deck.set(i, randomCard);
+            deck.set(j, currCard);
+        }
+        System.out.println("Колода після тосування");
         System.out.println(deck);
     }
 }
