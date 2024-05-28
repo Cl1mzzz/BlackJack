@@ -16,10 +16,32 @@ public class BlackJack {
         public String toString() {
             return value + "-" + type;
         }
+        public int getValue() {
+            if ("AJQK". contains(value)){
+                if (value == "A"){
+                    return 11;
+                }
+                return 10;
+            }
+            return Integer.parseInt(value);
+        }
+        public boolean isAce(){
+            return value == "A";
+        }
     }
 
     ArrayList<Card> deck;
     Random rand = new Random();
+
+    Card hiddenCard;
+    ArrayList<Card> dealerHand;
+    int dealerSum;
+    int dealerAceCount;
+
+    ArrayList<Card> playerHand;
+    int playerSum;
+    int playerAceCount;
+
 
     BlackJack() {
         startGame();
@@ -28,6 +50,41 @@ public class BlackJack {
     public void startGame() {
         buildDeck();
         shuffleDeck();
+
+        dealerHand = new ArrayList<Card>();
+        dealerSum = 0;
+        dealerAceCount = 0;
+        hiddenCard = deck.remove(deck.size()-1);
+        dealerSum += hiddenCard.getValue();
+        dealerAceCount += hiddenCard.isAce() ? 1 : 0;
+
+        Card card = deck.remove(deck.size()-1);
+        dealerSum += card.getValue();
+        dealerAceCount += card.isAce() ? 1 : 0;
+        dealerHand.add(card);
+
+        System.out.println("Дилер:");
+        System.out.println(hiddenCard);
+        System.out.println(dealerHand);
+        System.out.println(dealerSum);
+        System.out.println(dealerAceCount);
+
+        playerHand = new ArrayList<Card>();
+        playerSum = 0;
+        playerAceCount = 0;
+
+        for(int i = 0; i < 2; i++){
+            card = deck.remove(deck.size()-1);
+            playerSum += card.getValue();
+            playerAceCount += card.isAce() ? 1 : 0;
+            playerHand.add(card);
+        }
+
+        System.out.println("Гравець:");
+        System.out.println(playerHand);
+        System.out.println(playerSum);
+        System.out.println(playerAceCount);
+
     }
 
     public void buildDeck() {
