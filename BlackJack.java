@@ -3,6 +3,10 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class BlackJack {
     public class Card {
@@ -43,8 +47,23 @@ public class BlackJack {
     int playerAceCount;
 
 
+    int boardWidth = 1000;
+    int boardHeight = 700;
+
+    JFrame frame = new JFrame("BlackJack");
+    JPanel gamePanel = new JPanel();
+
     BlackJack() {
+        gamePanel = new ImagePanel("D:\\Course_Work\\BlackJack\\cards\\Background-Image.jpg");
+
         startGame();
+
+        frame.setVisible(true);
+        frame.setSize(boardWidth, boardHeight);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(gamePanel);
     }
 
     public void startGame() {
@@ -113,4 +132,29 @@ public class BlackJack {
         System.out.println("Колода після тосування");
         System.out.println(deck);
     }
+    private class ImagePanel extends JPanel {
+        private BufferedImage backgroundImage;
+
+        public ImagePanel(String imagePath) {
+            backgroundImage = loadImage(imagePath);
+        }
+
+        private BufferedImage loadImage(String imagePath) {
+            try {
+                return ImageIO.read(new File(imagePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        }
+    }
+
 }
