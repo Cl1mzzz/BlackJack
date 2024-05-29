@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.border.AbstractBorder;
 
 public class BlackJack {
     public class Card {
@@ -52,9 +53,13 @@ public class BlackJack {
 
     JFrame frame = new JFrame("BlackJack");
     JPanel gamePanel = new JPanel();
+    JPanel buttonPanel = new JPanel();
+    JButton hitButton = new JButton("Hit");
+    JButton stayButton = new JButton("Stay");
 
     BlackJack() {
         gamePanel = new ImagePanel("D:\\Course_Work\\BlackJack\\cards\\Background-Image.jpg");
+        buttonPanel = new ImagePanel("D:\\Course_Work\\BlackJack\\cards\\Background-Image2.jpg");
 
         startGame();
 
@@ -63,7 +68,35 @@ public class BlackJack {
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
+        hitButton.setFocusable(false);
+        hitButton.setPreferredSize(new Dimension(110, 40));
+        hitButton.setBackground(new Color(97, 0, 153));
+        hitButton.setBorder(new RoundedBorder(35, 5, 97, 0, 153));
+        hitButton.setContentAreaFilled(false);
+        hitButton.setOpaque(false);
+        hitButton.setFocusPainted(false);
+        hitButton.setForeground(new Color(255, 255, 255));
+        hitButton.setFont(new Font("Arial", Font.BOLD, 16));
+        hitButton.addActionListener(e -> System.out.println("Hit button clicked"));
+
+        stayButton.setFocusable(false);
+        stayButton.setPreferredSize(new Dimension(120, 40));
+        stayButton.setBackground(new Color(255, 215, 0));
+        stayButton.setBorder(new RoundedBorder(35, 5, 255, 215, 0));
+        stayButton.setContentAreaFilled(false);
+        stayButton.setOpaque(false);
+        stayButton.setFocusPainted(false);
+        stayButton.setForeground(new Color(255, 255, 255));
+        stayButton.setFont(new Font("Arial", Font.BOLD, 16));
+        stayButton.addActionListener(e -> System.out.println("Stay button clicked"));
+
+        buttonPanel.add(hitButton);
+        buttonPanel.add(stayButton);
         frame.add(gamePanel);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
     }
 
     public void startGame() {
@@ -156,5 +189,36 @@ public class BlackJack {
             }
         }
     }
+    class RoundedBorder extends AbstractBorder {
+        private int radius;
+        private Color color;
+        private int thickness;
 
+        RoundedBorder(int radius, int thickness, int r, int g, int b) {
+            this.radius = radius;
+            this.thickness = thickness;
+            this.color = new Color(r, g, b); // Создание цвета с использованием RGB значений
+        }
+        @Override
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setColor(this.color); // Используем цвет границы, заданный в конструкторе
+            g2d.setStroke(new BasicStroke(thickness)); // Установка толщины границы
+            g2d.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+            g2d.dispose();
+        }
+        @Override
+        public Insets getBorderInsets(Component c) {
+            int value = this.radius + this.thickness;
+            return new Insets(value, value, value, value);
+        }
+
+        @Override
+        public Insets getBorderInsets(Component c, Insets insets) {
+            int value = this.radius + this.thickness;
+            insets.left = insets.top = insets.right = insets.bottom = value;
+            return insets;
+        }
+    }
 }
