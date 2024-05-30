@@ -3,6 +3,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
+import javax.swing.JPanel;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +34,9 @@ public class BlackJack {
         public boolean isAce(){
             return value == "A";
         }
+        public String getImagePath(){
+            return "/cards/" + toString() + ".png";
+        }
     }
 
     ArrayList<Card> deck;
@@ -49,16 +53,43 @@ public class BlackJack {
 
 
     int boardWidth = 1000;
-    int boardHeight = 700;
+    int boardHeight = 600;
+
+    int cardWidth = 110;
+    int cardHeight = 154;
 
     JFrame frame = new JFrame("BlackJack");
-    JPanel gamePanel = new JPanel();
-    JPanel buttonPanel = new JPanel();
+    JPanel gamePanel;
+    JPanel buttonPanel;
     JButton hitButton = new JButton("Hit");
     JButton stayButton = new JButton("Stay");
 
     BlackJack() {
-        gamePanel = new ImagePanel("D:\\Course_Work\\BlackJack\\cards\\Background-Image.jpg");
+        gamePanel = new ImagePanel("D:\\Course_Work\\BlackJack\\cards\\Background-Image.jpg") {
+            @Override
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                try {
+                    Image hiddenCardImg = new ImageIcon(getClass().getResource("./cards/BACK.png")).getImage();
+                    g.drawImage(hiddenCardImg, 20, 20, cardWidth, cardHeight, null);
+
+                    for (int i = 0; i < dealerHand.size(); i++) {
+                        Card card = dealerHand.get(i);
+                        Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
+                        g.drawImage(cardImg, cardWidth + 30 + (cardWidth + 5) * i, 20, cardWidth, cardHeight, null);
+                    }
+
+                    for (int i = 0; i < playerHand.size(); i++) {
+                        Card card = playerHand.get(i);
+                        Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
+                        g.drawImage(cardImg,20 + (cardWidth + 10) * i, 320, cardWidth, cardHeight, null);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
         buttonPanel = new ImagePanel("D:\\Course_Work\\BlackJack\\cards\\Background-Image2.jpg");
 
         startGame();
@@ -213,7 +244,6 @@ public class BlackJack {
             int value = this.radius + this.thickness;
             return new Insets(value, value, value, value);
         }
-
         @Override
         public Insets getBorderInsets(Component c, Insets insets) {
             int value = this.radius + this.thickness;
