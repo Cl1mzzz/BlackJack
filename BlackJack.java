@@ -3,7 +3,6 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
-import javax.swing.JPanel;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -72,18 +71,50 @@ public class BlackJack {
 
                 try {
                     Image hiddenCardImg = new ImageIcon(getClass().getResource("./cards/BACK.png")).getImage();
+                    if (!stayButton.isEnabled()){
+                        hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getImagePath())).getImage();
+                    }
                     g.drawImage(hiddenCardImg, 20, 20, cardWidth, cardHeight, null);
 
                     for (int i = 0; i < dealerHand.size(); i++) {
                         Card card = dealerHand.get(i);
                         Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
-                        g.drawImage(cardImg, cardWidth + 30 + (cardWidth + 5) * i, 20, cardWidth, cardHeight, null);
+                        g.drawImage(cardImg, cardWidth + 30 + (cardWidth + 10) * i, 20, cardWidth, cardHeight, null);
                     }
 
                     for (int i = 0; i < playerHand.size(); i++) {
                         Card card = playerHand.get(i);
                         Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
                         g.drawImage(cardImg,20 + (cardWidth + 10) * i, 320, cardWidth, cardHeight, null);
+                    }
+
+                    if (!stayButton.isEnabled()){
+                        dealerSum = reduceDealerAce();
+                        playerSum = reducePlayerAce();
+                        System.out.println("Stay: ");
+                        System.out.println(dealerSum);
+                        System.out.println(playerSum);
+
+                        String message = "";
+                        if (playerSum > 21){
+                            message = "Програш";
+                        }
+                        else if (dealerSum > 21) {
+                            message = "Перемога";
+                        }
+                        else if (playerSum == dealerSum) {
+                            message = "Нічия";
+                        }
+                        else if (playerSum > dealerSum) {
+                            message = "Перемога";
+                        }
+                        else if (playerSum < dealerSum){
+                            message = "Програш";
+                        }
+
+                        g.setFont(new Font("Arial", Font.PLAIN, 30));
+                        g.setColor(Color.white);
+                        g.drawString(message, 220, 250);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -128,6 +159,37 @@ public class BlackJack {
         buttonPanel.add(stayButton);
         frame.add(gamePanel);
         frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        hitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Card card = deck.remove(deck.size() - 1);
+                playerSum += card.getValue();
+                playerAceCount += card.isAce()? 1 : 0;
+                playerHand.add(card);
+                if (reducePlayerAce() >= 21){
+                    hitButton.setEnabled(false);
+                }
+                gamePanel.repaint();
+            }
+        });
+
+        stayButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                hitButton.setEnabled(false);
+                stayButton.setEnabled(false);
+
+
+                while (dealerSum < 17){
+                    Card card = deck.remove(deck.size()-1);
+                    dealerSum += card.getValue();
+                    dealerAceCount += card.isAce() ? 1 : 0;
+                    dealerHand.add(card);
+                }
+                gamePanel.repaint();
+            }
+        });
+
+        gamePanel.repaint();
     }
 
     public void startGame() {
@@ -172,7 +234,7 @@ public class BlackJack {
 
     public void buildDeck() {
         deck = new ArrayList<Card>();
-        String[] values = {"A", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+        String[] values = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
         String[] type = {"C", "D", "H", "S"};
 
         for(int i = 0; i < type.length; i++) {
@@ -196,6 +258,7 @@ public class BlackJack {
         System.out.println("Колода після тосування");
         System.out.println(deck);
     }
+
     private class ImagePanel extends JPanel {
         private BufferedImage backgroundImage;
 
@@ -220,6 +283,7 @@ public class BlackJack {
             }
         }
     }
+
     class RoundedBorder extends AbstractBorder {
         private int radius;
         private Color color;
@@ -250,5 +314,21 @@ public class BlackJack {
             insets.left = insets.top = insets.right = insets.bottom = value;
             return insets;
         }
+    }
+
+    public int reducePlayerAce() {
+        while (playerSum > 21 && playerAceCount > 0){
+            playerSum -= 10;
+            playerAceCount -= 1;
+        }
+        return playerSum;
+    }
+
+    public int reduceDealerAce() {
+        while (dealerSum > 21 && dealerAceCount > 0){
+            dealerSum -= 10;
+            dealerAceCount -= 1;
+        }
+        return dealerSum;
     }
 }
