@@ -62,6 +62,7 @@ public class BlackJack {
     JPanel buttonPanel;
     JButton hitButton = new JButton("Hit");
     JButton stayButton = new JButton("Stay");
+    JButton newGameButton = new JButton("New Game");
 
     BlackJack() {
         gamePanel = new ImagePanel("D:\\Course_Work\\BlackJack\\cards\\Background-Image.jpg") {
@@ -88,28 +89,37 @@ public class BlackJack {
                         g.drawImage(cardImg,20 + (cardWidth + 10) * i, 320, cardWidth, cardHeight, null);
                     }
 
+                    String dealer = "Dealer";
+                    String player = "Player";
+
+                    g.setFont(new Font("Arial", Font.PLAIN, 20));
+                    g.setColor(Color.white);
+                    g.drawString(dealer, 30, 210);
+                    g.drawString(player, 30, 300);
+
                     if (!stayButton.isEnabled()){
                         dealerSum = reduceDealerAce();
                         playerSum = reducePlayerAce();
                         System.out.println("Stay: ");
                         System.out.println(dealerSum);
                         System.out.println(playerSum);
+                        newGameButton.setVisible(true);
 
                         String message = "";
                         if (playerSum > 21){
-                            message = "Програш";
+                            message = "Loss";
                         }
                         else if (dealerSum > 21) {
-                            message = "Перемога";
+                            message = "Victory";
                         }
                         else if (playerSum == dealerSum) {
-                            message = "Нічия";
+                            message = "Draw";
                         }
                         else if (playerSum > dealerSum) {
-                            message = "Перемога";
+                            message = "Victory";
                         }
                         else if (playerSum < dealerSum){
-                            message = "Програш";
+                            message = "Loss";
                         }
 
                         g.setFont(new Font("Arial", Font.PLAIN, 30));
@@ -155,8 +165,20 @@ public class BlackJack {
         stayButton.setFont(new Font("Arial", Font.BOLD, 16));
         stayButton.addActionListener(e -> System.out.println("Stay button clicked"));
 
+        newGameButton.setFocusable(false);
+        newGameButton.setPreferredSize(new Dimension(170, 40));
+        newGameButton.setBackground(new Color(155, 215, 0));
+        newGameButton.setBorder(new RoundedBorder(35, 5, 22, 37, 199));
+        newGameButton.setContentAreaFilled(false);
+        newGameButton.setOpaque(false);
+        newGameButton.setFocusPainted(false);
+        newGameButton.setForeground(new Color(255, 255, 255));
+        newGameButton.setFont(new Font("Arial", Font.BOLD, 16));
+        newGameButton.setVisible(false);
+
         buttonPanel.add(hitButton);
         buttonPanel.add(stayButton);
+        buttonPanel.add(newGameButton);
         frame.add(gamePanel);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -185,6 +207,13 @@ public class BlackJack {
                     dealerAceCount += card.isAce() ? 1 : 0;
                     dealerHand.add(card);
                 }
+                gamePanel.repaint();
+            }
+        });
+
+        newGameButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                startGame();
                 gamePanel.repaint();
             }
         });
@@ -229,6 +258,10 @@ public class BlackJack {
         System.out.println(playerHand);
         System.out.println(playerSum);
         System.out.println(playerAceCount);
+
+        hitButton.setEnabled(true);
+        stayButton.setEnabled(true);
+        newGameButton.setVisible(false);
 
     }
 
