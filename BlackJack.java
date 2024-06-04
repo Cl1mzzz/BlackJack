@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.border.AbstractBorder;
 
+
 public class BlackJack {
     public class Card {
         String value;
@@ -49,7 +50,12 @@ public class BlackJack {
     ArrayList<Card> playerHand;
     int playerSum;
     int playerAceCount;
+    int playerBet = 0;
 
+    int playerBalance = 1000;
+    JLabel balanceLabel;
+    JTextField betField;
+    JLabel betText;
 
     int boardWidth = 1000;
     int boardHeight = 600;
@@ -57,12 +63,19 @@ public class BlackJack {
     int cardWidth = 110;
     int cardHeight = 154;
 
+    boolean gameOver = false;
+    boolean showCards = false;
+
+    String dealer = "Dealer:";
+    String player = "Player:";
+
     JFrame frame = new JFrame("BlackJack");
     JPanel gamePanel;
     JPanel buttonPanel;
     JButton hitButton = new JButton("Hit");
     JButton stayButton = new JButton("Stay");
     JButton newGameButton = new JButton("New Game");
+    JButton betButton = new JButton("Bet");
 
     BlackJack() {
         gamePanel = new ImagePanel("D:\\Course_Work\\BlackJack\\cards\\Background-Image.jpg") {
@@ -71,67 +84,109 @@ public class BlackJack {
                 super.paintComponent(g);
 
                 try {
-                    Image hiddenCardImg = new ImageIcon(getClass().getResource("./cards/BACK.png")).getImage();
-                    if (!stayButton.isEnabled()){
-                        hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getImagePath())).getImage();
-                    }
-                    g.drawImage(hiddenCardImg, 20, 20, cardWidth, cardHeight, null);
+                    if (showCards) {
+                        Image hiddenCardImg = new ImageIcon(getClass().getResource("./cards/BACK.png")).getImage();
+                        if (!stayButton.isEnabled()) {
+                            hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getImagePath())).getImage();
+                        }
+                        g.drawImage(hiddenCardImg, 20, 20, cardWidth, cardHeight, null);
 
-                    for (int i = 0; i < dealerHand.size(); i++) {
-                        Card card = dealerHand.get(i);
-                        Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
-                        g.drawImage(cardImg, cardWidth + 30 + (cardWidth + 10) * i, 20, cardWidth, cardHeight, null);
-                    }
+                        for (int i = 0; i < dealerHand.size(); i++) {
+                            Card card = dealerHand.get(i);
+                            Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
+                            g.drawImage(cardImg, cardWidth + 30 + (cardWidth + 10) * i, 20, cardWidth, cardHeight, null);
+                        }
 
-                    for (int i = 0; i < playerHand.size(); i++) {
-                        Card card = playerHand.get(i);
-                        Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
-                        g.drawImage(cardImg,20 + (cardWidth + 10) * i, 320, cardWidth, cardHeight, null);
+                        for (int i = 0; i < playerHand.size(); i++) {
+                            Card card = playerHand.get(i);
+                            Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
+                            g.drawImage(cardImg, 20 + (cardWidth + 10) * i, 320, cardWidth, cardHeight, null);
+                        }
                     }
-
-                    String dealer = "Dealer";
-                    String player = "Player";
 
                     g.setFont(new Font("Arial", Font.PLAIN, 20));
                     g.setColor(Color.white);
                     g.drawString(dealer, 30, 210);
                     g.drawString(player, 30, 300);
 
-                    if (!stayButton.isEnabled()){
+                    if (!stayButton.isEnabled() && !gameOver){
                         dealerSum = reduceDealerAce();
                         playerSum = reducePlayerAce();
-                        System.out.println("Stay: ");
-                        System.out.println(dealerSum);
-                        System.out.println(playerSum);
                         newGameButton.setVisible(true);
 
                         String message = "";
                         if (playerSum > 21){
                             message = "Loss";
+                            playerBalance -= playerBet;
                         }
                         else if (dealerSum > 21) {
                             message = "Victory";
+                            playerBalance += playerBet;
                         }
                         else if (playerSum == dealerSum) {
                             message = "Draw";
                         }
                         else if (playerSum > dealerSum) {
                             message = "Victory";
+                            playerBalance += playerBet;
                         }
                         else if (playerSum < dealerSum){
                             message = "Loss";
+                            playerBalance -= playerBet;
                         }
 
                         g.setFont(new Font("Arial", Font.PLAIN, 30));
                         g.setColor(Color.white);
-                        g.drawString(message, 220, 250);
+                        g.drawString(message, 450, 250);
+
+                        gameOver = true;
                     }
+                    balanceLabel.setText("Balance: $" + playerBalance);
+                    balanceLabel.setBounds(800, 10, 180, 30);
+                    balanceLabel.repaint();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         };
         buttonPanel = new ImagePanel("D:\\Course_Work\\BlackJack\\cards\\Background-Image2.jpg");
+
+        gamePanel.setLayout(null);
+
+        balanceLabel = new JLabel("Balance: $" + playerBalance);
+        balanceLabel.setForeground(Color.WHITE);
+        balanceLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        balanceLabel.setBounds(800, 20, 180, 30);
+        gamePanel.add(balanceLabel);
+
+        betField = new JTextField(10);
+        betField.setFont(new Font("Arial", Font.BOLD, 16));
+        betField.setBounds(430, 235, 150, 40);
+        betField.setOpaque(true);
+        betField.setBackground(new Color(0, 0, 0));
+        betField.setForeground(new Color(255, 255, 255));
+        betField.setMargin(new Insets(0, 10, 0, 0));
+        gamePanel.add(betField);
+
+        betButton.setFocusable(false);
+        betButton.setPreferredSize(new Dimension(170, 40));
+        betButton.setBackground(new Color(255, 255, 255));
+        betButton.setBorder(new RoundedBorder(35, 5, 32, 230, 95));
+        betButton.setContentAreaFilled(false);
+        betButton.setOpaque(false);
+        betButton.setFocusPainted(false);
+        betButton.setForeground(new Color(255, 255, 255));
+        betButton.setFont(new Font("Arial", Font.BOLD, 16));
+        betButton.setBounds(600, 235, 110, 40);
+        gamePanel.add(betButton);
+
+        betText = new JLabel("Enter your bet: ");
+        betText.setForeground(Color.WHITE);
+        betText.setFont(new Font("Arial", Font.BOLD, 20));
+        betText.setBounds(280, 240, 150, 30);
+        gamePanel.add(betText);
+
+        buttonPanel.setVisible(false);
 
         startGame();
 
@@ -152,6 +207,7 @@ public class BlackJack {
         hitButton.setFocusPainted(false);
         hitButton.setForeground(new Color(255, 255, 255));
         hitButton.setFont(new Font("Arial", Font.BOLD, 16));
+        hitButton.setVisible(false);
         hitButton.addActionListener(e -> System.out.println("Hit button clicked"));
 
         stayButton.setFocusable(false);
@@ -163,6 +219,7 @@ public class BlackJack {
         stayButton.setFocusPainted(false);
         stayButton.setForeground(new Color(255, 255, 255));
         stayButton.setFont(new Font("Arial", Font.BOLD, 16));
+        stayButton.setVisible(false);
         stayButton.addActionListener(e -> System.out.println("Stay button clicked"));
 
         newGameButton.setFocusable(false);
@@ -179,6 +236,7 @@ public class BlackJack {
         buttonPanel.add(hitButton);
         buttonPanel.add(stayButton);
         buttonPanel.add(newGameButton);
+
         frame.add(gamePanel);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -213,8 +271,39 @@ public class BlackJack {
 
         newGameButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                buttonPanel.setVisible(false);
+                showCards = false;
+                hitButton.setVisible(false);
+                stayButton.setVisible(false);
+                betField.setVisible(true);
+                betButton.setVisible(true);
+                betText.setVisible(true);
                 startGame();
                 gamePanel.repaint();
+            }
+        });
+
+        betButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    playerBet = Integer.parseInt(betField.getText());
+                    if (playerBet > 0 && playerBet <= playerBalance){
+                        System.out.println("Player bet: $" + playerBet);
+                        buttonPanel.setVisible(true);
+                        showCards = true;
+                        hitButton.setVisible(true);
+                        stayButton.setVisible(true);
+                        betField.setVisible(false);
+                        betButton.setVisible(false);
+                        betText.setVisible(false);
+                        startGame();
+                        gamePanel.repaint();
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Invalid bet amount. Please enter a value between 1 and your current balance.");
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Please enter a valid number.");
+                }
             }
         });
 
@@ -222,6 +311,8 @@ public class BlackJack {
     }
 
     public void startGame() {
+        gameOver = false;
+
         buildDeck();
         shuffleDeck();
 
@@ -262,7 +353,7 @@ public class BlackJack {
         hitButton.setEnabled(true);
         stayButton.setEnabled(true);
         newGameButton.setVisible(false);
-
+        balanceLabel.setText("Balance: $" + playerBalance);
     }
 
     public void buildDeck() {
@@ -364,4 +455,5 @@ public class BlackJack {
         }
         return dealerSum;
     }
+
 }
